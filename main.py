@@ -52,7 +52,7 @@ prompt = hub.pull("rlm/rag-prompt")
 
 
 loader = DirectoryLoader(
-    path=r"C:\Users\tejus\OneDrive\Desktop\Full_Stack\ML\RAG_Chatbot\rag_env\data",
+    path="data",
     glob="*.pdf"
 )
 
