@@ -9,6 +9,9 @@ from langchain_chroma import Chroma
 from langchain import hub
 from langchain_core.documents import Document
 from langgraph.graph import START, StateGraph
+from langchain_community.document_loaders import DirectoryLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 
 # Load environment variables
 load_dotenv()
@@ -46,6 +49,26 @@ vector_store = Chroma(
     persist_directory="./chroma_langchain_db",
 )
 prompt = hub.pull("rlm/rag-prompt")
+
+
+loader = DirectoryLoader(
+    path=r"C:\Users\tejus\OneDrive\Desktop\Full_Stack\ML\RAG_Chatbot\rag_env\data",
+    glob="*.pdf"
+)
+
+docs = loader.load()
+
+print(f"No. of docs = {len(docs)}")
+print(docs[0].page_content[100:500])
+
+text_splitter = RecursiveCharacterTextSplitter(
+  chunk_size = 1000,
+  chunk_overlap = 200,
+  add_start_index = True
+)
+
+splits = text_splitter.split_documents(docs)
+document_ids = vector_store.add_documents(documents=splits)
 
 # Build the RAG graph
 graph_builder = StateGraph(State).add_sequence([retrieve, generate])
