@@ -11,6 +11,8 @@ from langchain_core.documents import Document
 from langgraph.graph import START, StateGraph
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from fastapi.middleware.cors import CORSMiddleware
+
 
 
 # Load environment variables
@@ -56,20 +58,6 @@ loader = DirectoryLoader(
     glob="*.pdf"
 )
 
-docs = loader.load()
-
-print(f"No. of docs = {len(docs)}")
-print(docs[0].page_content[100:500])
-
-text_splitter = RecursiveCharacterTextSplitter(
-  chunk_size = 1000,
-  chunk_overlap = 200,
-  add_start_index = True
-)
-
-splits = text_splitter.split_documents(docs)
-document_ids = vector_store.add_documents(documents=splits)
-
 # Build the RAG graph
 graph_builder = StateGraph(State).add_sequence([retrieve, generate])
 graph_builder.add_edge(START, "retrieve")
@@ -80,6 +68,13 @@ app = FastAPI()
 
 class QuestionRequest(BaseModel):
     question: str
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/ask")
 def ask_rag(request: QuestionRequest):
