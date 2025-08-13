@@ -1,3 +1,4 @@
 .env
 Lib
 chroma_langchain_db
+data
